@@ -9,8 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
 
 public class CardDeliveryTest {
 
@@ -26,18 +25,50 @@ public class CardDeliveryTest {
         $("[data-test-id=agreement]").click();
         $("[class='button__text']").click();
         $(".notification__title").shouldHave(text("Успешно!"), Duration.ofSeconds(15));
-        ;
+        $(".notification__content").shouldHave(text("Встреча успешно забронирована на " + s));
     }
 
     @Test
-    void shouldNoSendFormNoData() {
+    void shouldNotSendFormNoCity() {
         open("http://localhost:9999");
+        String s = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[placeholder='Дата встречи']").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[placeholder='Дата встречи']").setValue(s);
+        $("[name='name']").setValue("Иванов Иван");
+        $("[name='phone']").setValue("+71111111111");
+        $("[data-test-id=agreement]").click();
         $("[class='button__text']").click();
         $(".input_invalid[data-test-id=city] .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
     }
 
     @Test
-    void shouldNoSendFormInvalidCity() {
+    void shouldNotSendFormNoName() {
+        open("http://localhost:9999");
+        $("[data-test-id=city] input").setValue("Москва");
+        String s = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[placeholder='Дата встречи']").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[placeholder='Дата встречи']").setValue(s);
+        $("[name='phone']").setValue("+71111111111");
+        $("[data-test-id=agreement]").click();
+        $("[class='button__text']").click();
+        $(".input_invalid[data-test-id=name] .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
+    }
+
+    @Test
+    void shouldNotSendFormNoPhone() {
+        open("http://localhost:9999");
+        $("[data-test-id=city] input").setValue("Москва");
+        String s = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[placeholder='Дата встречи']").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[placeholder='Дата встречи']").setValue(s);
+        $("[name='name']").setValue("Иванов Иван");
+        $("[data-test-id=agreement]").click();
+        $("[class='button__text']").click();
+        $(".input_invalid[data-test-id=phone] .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
+    }
+
+    @Test
+    void shouldNotSendFormInvalidCity() {
         open("http://localhost:9999");
         $("[data-test-id=city] input").setValue("Moscow");
         String s = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
@@ -51,7 +82,7 @@ public class CardDeliveryTest {
     }
 
     @Test
-    void shouldNoSendFormInvalidName() {
+    void shouldNotSendFormInvalidName() {
         open("http://localhost:9999");
         $("[data-test-id=city] input").setValue("Москва");
         String s = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
@@ -65,7 +96,7 @@ public class CardDeliveryTest {
     }
 
     @Test
-    void shouldNoSendFormInvalidPhoneNumber() {
+    void shouldNotSendFormInvalidPhoneNumber() {
         open("http://localhost:9999");
         $("[data-test-id=city] input").setValue("Москва");
         String s = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
@@ -79,7 +110,7 @@ public class CardDeliveryTest {
     }
 
     @Test
-    void shouldNoSendFormNoAgreement() {
+    void shouldNotSendFormNoAgreement() {
         open("http://localhost:9999");
         $("[data-test-id=city] input").setValue("Москва");
         String s = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
@@ -89,7 +120,6 @@ public class CardDeliveryTest {
         $("[name='phone']").setValue("+71111111111");
         $("[class='button__text']").click();
         $(".input_invalid[data-test-id=agreement] .checkbox__text").shouldHave(exactText("Я соглашаюсь с условиями обработки и использования моих персональных данных"));
-        ;
     }
 
 }
